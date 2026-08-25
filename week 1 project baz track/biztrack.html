@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>BizTrack - Business Management</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f7fb;
+            color: #222;
+        }
+
+        button,
+        input {
+            font: inherit;
+        }
+
+        /* ================= LOGIN / SIGNUP ================= */
+
+        .auth-page {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #0f172a, #2563eb);
+            padding: 20px;
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 420px;
+        }
+
+        .brand {
+            text-align: center;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .brand h1 {
+            font-size: 38px;
+            margin-bottom: 5px;
+        }
+
+        .brand p {
+            opacity: 0.85;
+        }
+
+        .auth-card {
+            background: white;
+            border-radius: 18px;
+            padding: 30px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+        }
+
+        .auth-card h2 {
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .auth-subtitle {
+            text-align: center;
+            color: #777;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 7px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d7dce5;
+            border-radius: 9px;
+            outline: none;
+        }
+
+        .form-group input:focus {
+            border-color: #2563eb;
+        }
+
+        .auth-btn {
+            width: 100%;
+            border: none;
+            background: #2563eb;
+            color: white;
+            padding: 13px;
+            border-radius: 9px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .auth-btn:hover {
+            background: #1d4ed8;
+        }
+
+        .switch-text {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .switch-text span {
+            color: #2563eb;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        /* ================= DASHBOARD ================= */
+
+        .dashboard {
+            display: none;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 240px;
+            background: #0f172a;
+            color: white;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            padding: 25px 15px;
+        }
+
+        .sidebar-logo {
+            font-size: 25px;
+            font-weight: bold;
+            margin-bottom: 35px;
+            padding-left: 10px;
+        }
+
+        .sidebar-logo span {
+            color: #60a5fa;
+        }
+
+        .menu-item {
+            display: block;
+            width: 100%;
+            padding: 13px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            color: #cbd5e1;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            text-align: left;
+        }
+
+        .menu-item:hover,
+        .menu-item.active {
+            background: #1e40af;
+            color: white;
+        }
+
+        .logout-btn {
+            position: absolute;
+            bottom: 25px;
+            left: 15px;
+            width: calc(100% - 30px);
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: #dc2626;
+            color: white;
+            cursor: pointer;
+        }
+
+        .main {
+            margin-left: 240px;
+            padding: 30px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .topbar h2 {
+            font-size: 28px;
+        }
+
+        .user-box {
+            background: white;
+            padding: 10px 16px;
+            border-radius: 10px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.06);
+        }
+
+        /* ================= STAT CARDS ================= */
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 22px;
+            border-radius: 14px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.06);
+        }
+
+        .stat-card p {
+            color: #777;
+            margin-bottom: 8px;
+        }
+
+        .stat-card h3 {
+            font-size: 27px;
+        }
+
+        .blue {
+            border-left: 5px solid #2563eb;
+        }
+
+        .green {
+            border-left: 5px solid #16a34a;
+        }
+
+        .orange {
+            border-left: 5px solid #f97316;
+        }
+
+        .red {
+            border-left: 5px solid #dc2626;
+        }
+
+        /* ================= CONTENT ================= */
+
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .panel {
+            background: white;
+            padding: 25px;
+            border-radius: 14px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.06);
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .primary-btn {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 10px 17px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 14px;
+            border-bottom: 1px solid #eee;
+            text-align: left;
+        }
+
+        th {
+            background: #f8fafc;
+        }
+
+        .status {
+            padding: 5px 9px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+
+        .status.active {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status.low {
+            background: #ffedd5;
+            color: #9a3412;
+        }
+
+        /* ================= RESPONSIVE ================= */
+
+        @media (max-width: 900px) {
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .sidebar {
+                width: 200px;
+            }
+
+            .main {
+                margin-left: 200px;
+            }
+        }
+
+        @media (max-width: 650px) {
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+            }
+
+            .logout-btn {
+                position: relative;
+                bottom: auto;
+                left: auto;
+                width: 100%;
+                margin-top: 15px;
+            }
+
+            .main {
+                margin-left: 0;
+                padding: 20px;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .topbar {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- ================= AUTH PAGE ================= -->
+
+<div class="auth-page" id="authPage">
+
+    <div class="auth-container">
+
+        <div class="brand">
+            <h1>BizTrack</h1>
+            <p>Smart Business Management System</p>
+        </div>
+
+        <!-- LOGIN -->
+
+        <div class="auth-card" id="loginCard">
+
+            <h2>Welcome Back</h2>
+
+            <p class="auth-subtitle">
+                Login to manage your business
+            </p>
+
+            <div class="message" id="loginMessage"></div>
+
+            <form id="loginForm">
+
+                <div class="form-group">
+                    <label>Email</label>
+                    <input
+                        type="email"
+                        id="loginEmail"
+                        placeholder="Enter your email"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label>Password</label>
+                    <input
+                        type="password"
+                        id="loginPassword"
+                        placeholder="Enter your password"
+                        required
+                    >
+                </div>
+
+                <button class="auth-btn" type="submit">
+                    Login
+                </button>
+
+            </form>
+
+            <p class="switch-text">
+                Don't have an account?
+                <span onclick="showSignup()">Sign Up</span>
+            </p>
+
+        </div>
+
+
+        <!-- SIGNUP -->
+
+        <div class="auth-card" id="signupCard" style="display:none;">
+
+            <h2>Create Account</h2>
+
+            <p class="auth-subtitle">
+                Start managing your business
+            </p>
+
+            <div class="message" id="signupMessage"></div>
+
+            <form id="signupForm">
+
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input
+                        type="text"
+                        id="signupName"
+                        placeholder="Enter your name"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label>Email</label>
+                    <input
+                        type="email"
+                        id="signupEmail"
+                        placeholder="Enter your email"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label>Password</label>
+                    <input
+                        type="password"
+                        id="signupPassword"
+                        placeholder="Create password"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label>Confirm Password</label>
+                    <input
+                        type="password"
+                        id="confirmPassword"
+                        placeholder="Confirm password"
+                        required
+                    >
+                </div>
+
+                <button class="auth-btn" type="submit">
+                    Create Account
+                </button>
+
+            </form>
+
+            <p class="switch-text">
+                Already have an account?
+                <span onclick="showLogin()">Login</span>
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ================= DASHBOARD ================= -->
+
+<div class="dashboard" id="dashboard">
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar">
+
+        <div class="sidebar-logo">
+            Biz<span>Track</span>
+        </div>
+
+        <button class="menu-item active" onclick="showSection('dashboardSection', this)">
+            🏠 Dashboard
+        </button>
+
+        <button class="menu-item" onclick="showSection('productsSection', this)">
+            📦 Products
+        </button>
+
+        <button class="menu-item" onclick="showSection('customersSection', this)">
+            👥 Customers
+        </button>
+
+        <button class="menu-item" onclick="showSection('salesSection', this)">
+            💰 Sales
+        </button>
+
+        <button class="menu-item" onclick="showSection('expensesSection', this)">
+            💳 Expenses
+        </button>
+
+        <button class="logout-btn" onclick="logout()">
+            Logout
+        </button>
+
+    </aside>
+
+
+    <!-- MAIN CONTENT -->
+
+    <main class="main">
+
+        <div class="topbar">
+
+            <div>
+                <h2>Business Dashboard</h2>
+                <p>Manage your business from one place.</p>
+            </div>
+
+            <div class="user-box">
+                👤 <span id="userName">User</span>
+            </div>
+
+        </div>
+
+
+        <!-- DASHBOARD SECTION -->
+
+        <section class="content-section active" id="dashboardSection">
+
+            <div class="stats">
+
+                <div class="stat-card blue">
+                    <p>Total Sales</p>
+                    <h3>Rs. 245,000</h3>
+                </div>
+
+                <div class="stat-card green">
+                    <p>Total Products</p>
+                    <h3>128</h3>
+                </div>
+
+                <div class="stat-card orange">
+                    <p>Customers</p>
+                    <h3>356</h3>
+                </div>
+
+                <div class="stat-card red">
+                    <p>Expenses</p>
+                    <h3>Rs. 78,500</h3>
+                </div>
+
+            </div>
+
+
+            <div class="panel">
+
+                <div class="panel-header">
+                    <h3>Recent Sales</h3>
+
+                    <button class="primary-btn">
+                        View All
+                    </button>
+                </div>
+
+                <div class="table-container">
+
+                    <table>
+
+                        <thead>
+                            <tr>
+                                <th>Customer</th>
+                                <th>Product</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            <tr>
+                                <td>Ali Traders</td>
+                                <td>Laptop</td>
+                                <td>Rs. 85,000</td>
+                                <td>
+                                    <span class="status active">
+                                        Completed
+                                    </span>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td>Ahmed Store</td>
+                                <td>Keyboard</td>
+                                <td>Rs. 4,500</td>
+                                <td>
+                                    <span class="status active">
+                                        Completed
+                                    </span>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td>City Mart</td>
+                                <td>Mouse</td>
+                                <td>Rs. 2,500</td>
+                                <td>
+                                    <span class="status low">
+                                        Pending
+                                    </span>
+                                </td>
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- PRODUCTS -->
+
+        <section class="content-section" id="productsSection">
+
+            <div class="panel">
+
+                <div class="panel-header">
+                    <h3>Products</h3>
+
+                    <button class="primary-btn">
+                        + Add Product
+                    </button>
+                </div>
+
+                <div class="table-container">
+
+                    <table>
+
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Category</th>
+                                <th>Price</th>
+                                <th>Stock</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            <tr>
+                                <td>Laptop</td>
+                                <td>Electronics</td>
+                                <td>Rs. 85,000</td>
+                                <td>15</td>
+                            </tr>
+
+                            <tr>
+                                <td>Keyboard</td>
+                                <td>Accessories</td>
+                                <td>Rs. 4,500</td>
+                                <td>32</td>
+                            </tr>
+
+                            <tr>
+                                <td>Mouse</td>
+                                <td>Accessories</td>
+                                <td>Rs. 2,500</td>
+                                <td>8</td>
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- CUSTOMERS -->
+
+        <section class="content-section" id="customersSection">
+
+            <div class="panel">
+
+                <div class="panel-header">
+                    <h3>Customers</h3>
+
+                    <button class="primary-btn">
+                        + Add Customer
+                    </button>
+                </div>
+
+                <div class="table-container">
+
+                    <table>
+
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Total Purchase</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            <tr>
+                                <td>Ali Traders</td>
+                                <td>ali@example.com</td>
+                                <td>0300-1234567</td>
+                                <td>Rs. 120,000</td>
+                            </tr>
+
+                            <tr>
+                                <td>Ahmed Store</td>
+                                <td>ahmed@example.com</td>
+                                <td>0312-7654321</td>
+                                <td>Rs. 75,000</td>
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- SALES -->
+
+        <section class="content-section" id="salesSection">
+
+            <div class="panel">
+
+                <div class="panel-header">
+
+                    <h3>Sales</h3>
+
+                    <button class="primary-btn">
+                        + New Sale
+                    </button>
+
+                </div>
+
+                <div class="table-container">
+
+                    <table>
+
+                        <thead>
+                            <tr>
+                                <th>Invoice</th>
+                                <th>Customer</th>
+                                <th>Date</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            <tr>
+                                <td>#INV001</td>
+                                <td>Ali Traders</td>
+                                <td>25 Aug 2026</td>
+                                <td>Rs. 85,000</td>
+                            </tr>
+
+                            <tr>
+                                <td>#INV002</td>
+                                <td>Ahmed Store</td>
+                                <td>24 Aug 2026</td>
+                                <td>Rs. 4,500</td>
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- EXPENSES -->
+
+        <section class="content-section" id="expensesSection">
+
+            <div class="panel">
+
+                <div class="panel-header">
+
+                    <h3>Expenses</h3>
+
+                    <button class="primary-btn">
+                        + Add Expense
+                    </button>
+
+                </div>
+
+                <div class="table-container">
+
+                    <table>
+
+                        <thead>
+                            <tr>
+                                <th>Expense</th>
+                                <th>Category</th>
+                                <th>Date</th>
+                                <th>Amount</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            <tr>
+                                <td>Office Rent</td>
+                                <td>Rent</td>
+                                <td>25 Aug 2026</td>
+                                <td>Rs. 35,000</td>
+                            </tr>
+
+                            <tr>
+                                <td>Internet</td>
+                                <td>Utilities</td>
+                                <td>24 Aug 2026</td>
+                                <td>Rs. 5,000</td>
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<script>
+
+    /* ================= AUTH FUNCTIONS ================= */
+
+    const authPage = document.getElementById("authPage");
+    const dashboard = document.getElementById("dashboard");
+
+    const loginCard = document.getElementById("loginCard");
+    const signupCard = document.getElementById("signupCard");
+
+
+    function showSignup() {
+
+        loginCard.style.display = "none";
+        signupCard.style.display = "block";
+
+    }
+
+
+    function showLogin() {
+
+        signupCard.style.display = "none";
+        loginCard.style.display = "block";
+
+    }
+
+
+    /* ================= SIGNUP ================= */
+
+    document.getElementById("signupForm").addEventListener("submit", function(event) {
+
+        event.preventDefault();
+
+        const name = document.getElementById("signupName").value;
+        const email = document.getElementById("signupEmail").value;
+        const password = document.getElementById("signupPassword").value;
+        const confirmPassword = document.getElementById("confirmPassword").value;
+
+        const message = document.getElementById("signupMessage");
+
+
+        if (password !== confirmPassword) {
+
+            message.style.color = "red";
+            message.textContent = "Passwords do not match.";
+
+            return;
+        }
+
+
+        const user = {
+
+            name: name,
+            email: email,
+            password: password
+
+        };
+
+
+        localStorage.setItem("biztrackUser", JSON.stringify(user));
+
+
+        message.style.color = "green";
+        message.textContent = "Account created successfully!";
+
+
+        setTimeout(function() {
+
+            showLogin();
+
+        }, 1000);
+
+    });
+
+
+    /* ================= LOGIN ================= */
+
+    document.getElementById("loginForm").addEventListener("submit", function(event) {
+
+        event.preventDefault();
+
+
+        const email = document.getElementById("loginEmail").value;
+
+        const password = document.getElementById("loginPassword").value;
+
+
+        const savedUser = JSON.parse(
+            localStorage.getItem("biztrackUser")
+        );
+
+
+        const message = document.getElementById("loginMessage");
+
+
+        if (!savedUser) {
+
+            message.style.color = "red";
+            message.textContent = "No account found. Please Sign Up first.";
+
+            return;
+        }
+
+
+        if (
+            email === savedUser.email &&
+            password === savedUser.password
+        ) {
+
+            localStorage.setItem(
+                "biztrackLoggedIn",
+                "true"
+            );
+
+
+            openDashboard(savedUser.name);
+
+        } else {
+
+            message.style.color = "red";
+            message.textContent = "Invalid email or password.";
+
+        }
+
+    });
+
+
+    /* ================= OPEN DASHBOARD ================= */
+
+    function openDashboard(name) {
+
+        authPage.style.display = "none";
+
+        dashboard.style.display = "block";
+
+        document.getElementById("userName").textContent = name;
+
+    }
+
+
+    /* ================= LOGOUT ================= */
+
+    function logout() {
+
+        localStorage.removeItem("biztrackLoggedIn");
+
+        dashboard.style.display = "none";
+
+        authPage.style.display = "flex";
+
+        showLogin();
+
+    }
+
+
+    /* ================= SIDEBAR NAVIGATION ================= */
+
+    function showSection(sectionId, button) {
+
+        const sections = document.querySelectorAll(".content-section");
+
+        sections.forEach(function(section) {
+
+            section.classList.remove("active");
+
+        });
+
+
+        document.getElementById(sectionId)
+            .classList.add("active");
+
+
+        const buttons = document.querySelectorAll(".menu-item");
+
+        buttons.forEach(function(btn) {
+
+            btn.classList.remove("active");
+
+        });
+
+
+        button.classList.add("active");
+
+    }
+
+
+    /* ================= REMEMBER LOGIN ================= */
+
+    window.addEventListener("load", function() {
+
+        const loggedIn =
+            localStorage.getItem("biztrackLoggedIn");
+
+        const savedUser =
+            JSON.parse(localStorage.getItem("biztrackUser"));
+
+
+        if (loggedIn === "true" && savedUser) {
+
+            openDashboard(savedUser.name);
+
+        }
+
+    });
+
+</script>
+
+</body>
+</html>
