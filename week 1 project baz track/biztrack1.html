@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BizTrack - Business Management System</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
+body{background:#f4f7fb;color:#172033}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.auth-page{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:linear-gradient(135deg,#0f172a,#2563eb)}
+.auth-container{width:100%;max-width:430px}
+.brand{text-align:center;color:white;margin-bottom:20px}
+.brand h1{font-size:40px}.brand p{opacity:.85}
+.auth-card{background:white;padding:30px;border-radius:18px;box-shadow:0 20px 50px #0003}
+.auth-card h2{text-align:center;margin-bottom:8px}.auth-sub{text-align:center;color:#777;margin-bottom:22px;font-size:14px}
+.form-group{margin-bottom:15px}.form-group label{display:block;font-size:14px;font-weight:bold;margin-bottom:6px}
+.form-group input,.form-control{width:100%;padding:11px;border:1px solid #d8dee8;border-radius:8px;outline:none}
+.form-group input:focus,.form-control:focus{border-color:#2563eb}
+.auth-btn,.primary-btn{border:0;background:#2563eb;color:white;padding:11px 16px;border-radius:8px;font-weight:bold}
+.auth-btn{width:100%}.auth-btn:hover,.primary-btn:hover{background:#1d4ed8}
+.switch{text-align:center;margin-top:18px;color:#666;font-size:14px}.switch span{color:#2563eb;font-weight:bold;cursor:pointer}
+.message{text-align:center;margin-bottom:12px;font-size:14px;font-weight:bold}
+.dashboard{display:none;min-height:100vh}
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:240px;background:#0f172a;color:white;padding:24px 15px}
+.logo{font-size:25px;font-weight:bold;margin:0 10px 30px}.logo span{color:#60a5fa}
+.menu-item{display:block;width:100%;padding:12px;border:0;border-radius:8px;background:transparent;color:#cbd5e1;text-align:left;margin-bottom:7px}
+.menu-item:hover,.menu-item.active{background:#1e40af;color:white}
+.logout{position:absolute;bottom:25px;left:15px;width:calc(100% - 30px);padding:11px;border:0;border-radius:8px;background:#dc2626;color:white}
+.main{margin-left:240px;padding:28px}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px}.topbar h2{font-size:28px}
+.user-box{background:white;padding:10px 15px;border-radius:9px;box-shadow:0 3px 12px #0000000d}
+.content-section{display:none}.content-section.active{display:block}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:22px}
+.stat-card{background:white;padding:20px;border-radius:13px;box-shadow:0 3px 15px #0000000d;border-left:5px solid #2563eb}
+.stat-card:nth-child(2){border-left-color:#16a34a}.stat-card:nth-child(3){border-left-color:#f97316}.stat-card:nth-child(4){border-left-color:#dc2626}
+.stat-card p{color:#777;margin-bottom:7px}.stat-card h3{font-size:25px}
+.panel{background:white;padding:23px;border-radius:13px;box-shadow:0 3px 15px #0000000d;margin-bottom:20px}
+.panel-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;gap:12px}
+.panel-header p{color:#777;font-size:14px;margin-top:4px}
+.table-container{overflow-x:auto}table{width:100%;border-collapse:collapse}
+th,td{padding:12px;border-bottom:1px solid #edf0f4;text-align:left;white-space:nowrap}th{background:#f8fafc}
+.status{padding:5px 9px;border-radius:20px;font-size:12px}.status.active{background:#dcfce7;color:#166534}.status.low{background:#ffedd5;color:#9a3412}.status.danger{background:#fee2e2;color:#991b1b}
+.search{width:100%;padding:11px;border:1px solid #d8dee8;border-radius:8px;margin-bottom:18px;outline:none}
+.form-box{background:#f8fafc;padding:20px;border-radius:10px;margin-bottom:20px;display:none}
+.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.form-actions{margin-top:15px;display:flex;gap:8px}
+.secondary-btn{border:0;background:#e5e7eb;padding:10px 15px;border-radius:8px}
+.action-edit{border:0;background:#2563eb;color:white;padding:6px 9px;border-radius:6px}
+.action-delete{border:0;background:#dc2626;color:white;padding:6px 9px;border-radius:6px;margin-left:5px}
+.quick-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}.quick{padding:18px;border-radius:10px;background:#f8fafc}
+.report-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}.report-card{background:#f8fafc;padding:20px;border-radius:10px}.report-card p{color:#777}.report-card h3{margin-top:8px}
+@media(max-width:950px){.stats{grid-template-columns:repeat(2,1fr)}.sidebar{width:200px}.main{margin-left:200px}}
+@media(max-width:650px){.sidebar{position:relative;width:100%;height:auto}.logout{position:relative;left:auto;bottom:auto;width:100%;margin-top:12px}.main{margin-left:0;padding:18px}.stats,.quick-grid,.report-grid{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}.topbar{align-items:flex-start;flex-direction:column}}
+</style>
+</head>
+
+<body>
+
+<!-- AUTH -->
+<div class="auth-page" id="authPage">
+<div class="auth-container">
+<div class="brand"><h1>BizTrack</h1><p>Smart Business Management System</p></div>
+
+<div class="auth-card" id="loginCard">
+<h2>Welcome Back</h2><p class="auth-sub">Login to manage your business</p>
+<div class="message" id="loginMessage"></div>
+<form id="loginForm">
+<div class="form-group"><label>Email</label><input type="email" id="loginEmail" required></div>
+<div class="form-group"><label>Password</label><input type="password" id="loginPassword" required></div>
+<button class="auth-btn">Login</button>
+</form>
+<p class="switch">Don't have an account? <span onclick="showSignup()">Sign Up</span></p>
+</div>
+
+<div class="auth-card" id="signupCard" style="display:none">
+<h2>Create Account</h2><p class="auth-sub">Start managing your business</p>
+<div class="message" id="signupMessage"></div>
+<form id="signupForm">
+<div class="form-group"><label>Full Name</label><input type="text" id="signupName" required></div>
+<div class="form-group"><label>Email</label><input type="email" id="signupEmail" required></div>
+<div class="form-group"><label>Password</label><input type="password" id="signupPassword" required></div>
+<div class="form-group"><label>Confirm Password</label><input type="password" id="confirmPassword" required></div>
+<button class="auth-btn">Create Account</button>
+</form>
+<p class="switch">Already have an account? <span onclick="showLogin()">Login</span></p>
+</div>
+</div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="dashboard" id="dashboard">
+<aside class="sidebar">
+<div class="logo">Biz<span>Track</span></div>
+<button class="menu-item active" onclick="showSection('dashboardSection',this)">🏠 Dashboard</button>
+<button class="menu-item" onclick="showSection('productsSection',this)">📦 Products</button>
+<button class="menu-item" onclick="showSection('customersSection',this)">👥 Customers</button>
+<button class="menu-item" onclick="showSection('salesSection',this)">💰 Sales</button>
+<button class="menu-item" onclick="showSection('expensesSection',this)">💳 Expenses</button>
+<button class="menu-item" onclick="showSection('reportsSection',this)">📊 Reports</button>
+<button class="logout" onclick="logout()">Logout</button>
+</aside>
+
+<main class="main">
+<div class="topbar">
+<div><h2>Business Dashboard</h2><p>Manage your business from one place.</p></div>
+<div class="user-box">👤 <span id="userName">User</span></div>
+</div>
+
+<!-- DASHBOARD -->
+<section class="content-section active" id="dashboardSection">
+<div class="stats">
+<div class="stat-card"><p>Total Sales</p><h3 id="dashSales">Rs. 0</h3></div>
+<div class="stat-card"><p>Total Products</p><h3 id="dashProducts">0</h3></div>
+<div class="stat-card"><p>Customers</p><h3 id="dashCustomers">0</h3></div>
+<div class="stat-card"><p>Expenses</p><h3 id="dashExpenses">Rs. 0</h3></div>
+</div>
+<div class="panel">
+<div class="panel-header"><div><h3>Quick Actions</h3><p>Jump to the most-used business features.</p></div></div>
+<div class="quick-grid">
+<div class="quick"><h3>📦 Products</h3><p>Add, edit, search and remove products.</p></div>
+<div class="quick"><h3>👥 Customers</h3><p>Keep customer information organized.</p></div>
+<div class="quick"><h3>💰 Sales</h3><p>Create sales and calculate totals.</p></div>
+</div>
+</div>
+<div class="panel">
+<div class="panel-header"><h3>Recent Sales</h3></div>
+<div class="table-container"><table><thead><tr><th>Invoice</th><th>Customer</th><th>Total</th><th>Date</th></tr></thead><tbody id="recentSalesBody"></tbody></table></div>
+</div>
+</section>
+
+<!-- PRODUCTS -->
+<section class="content-section" id="productsSection">
+<div class="panel">
+<div class="panel-header"><div><h3>Products</h3><p>Manage your inventory.</p></div><button class="primary-btn" onclick="openProductForm()">+ Add Product</button></div>
+<input class="search" id="productSearch" placeholder="Search product or category..." oninput="renderProducts()">
+<div class="form-box" id="productForm">
+<h3 id="productFormTitle">Add Product</h3>
+<div class="form-grid">
+<input class="form-control" id="productName" placeholder="Product name">
+<input class="form-control" id="productCategory" placeholder="Category">
+<input class="form-control" id="productPrice" type="number" min="0" placeholder="Price">
+<input class="form-control" id="productStock" type="number" min="0" placeholder="Stock quantity">
+</div>
+<div class="form-actions"><button class="primary-btn" onclick="saveProduct()">Save Product</button><button class="secondary-btn" onclick="closeProductForm()">Cancel</button></div>
+</div>
+<div class="table-container"><table><thead><tr><th>#</th><th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th><th>Actions</th></tr></thead><tbody id="productTableBody"></tbody></table></div>
+</div>
+</section>
+
+<!-- CUSTOMERS -->
+<section class="content-section" id="customersSection">
+<div class="panel">
+<div class="panel-header"><div><h3>Customers</h3><p>Manage customer records.</p></div><button class="primary-btn" onclick="openCustomerForm()">+ Add Customer</button></div>
+<input class="search" id="customerSearch" placeholder="Search customer, email or phone..." oninput="renderCustomers()">
+<div class="form-box" id="customerForm">
+<h3 id="customerFormTitle">Add Customer</h3>
+<div class="form-grid">
+<input class="form-control" id="customerName" placeholder="Customer name">
+<input class="form-control" id="customerEmail" type="email" placeholder="Email">
+<input class="form-control" id="customerPhone" placeholder="Phone">
+<input class="form-control" id="customerAddress" placeholder="Address">
+</div>
+<div class="form-actions"><button class="primary-btn" onclick="saveCustomer()">Save Customer</button><button class="secondary-btn" onclick="closeCustomerForm()">Cancel</button></div>
+</div>
+<div class="table-container"><table><thead><tr><th>#</th><th>Name</th><th>Email</th><th>Phone</th><th>Address</th><th>Purchase Total</th><th>Actions</th></tr></thead><tbody id="customerTableBody"></tbody></table></div>
+</div>
+</section>
+
+<!-- SALES -->
+<section class="content-section" id="salesSection">
+<div class="panel">
+<div class="panel-header"><div><h3>Sales</h3><p>Create sales using your saved products and customers.</p></div><button class="primary-btn" onclick="openSaleForm()">+ New Sale</button></div>
+<div class="form-box" id="saleForm">
+<h3>Create New Sale</h3><br>
+<div class="form-grid">
+<select class="form-control" id="saleCustomer"></select>
+<select class="form-control" id="saleProduct"></select>
+<input class="form-control" id="saleQuantity" type="number" min="1" value="1" placeholder="Quantity">
+<input class="form-control" id="salePrice" type="number" readonly placeholder="Unit price">
+</div>
+<div style="margin-top:15px;font-weight:bold">Total: <span id="saleTotal">Rs. 0</span></div>
+<div class="form-actions"><button class="primary-btn" onclick="saveSale()">Save Sale</button><button class="secondary-btn" onclick="closeSaleForm()">Cancel</button></div>
+</div>
+<div class="table-container"><table><thead><tr><th>Invoice</th><th>Customer</th><th>Product</th><th>Qty</th><th>Total</th><th>Date</th><th>Action</th></tr></thead><tbody id="salesTableBody"></tbody></table></div>
+</div>
+</section>
+
+<!-- EXPENSES -->
+<section class="content-section" id="expensesSection">
+<div class="panel">
+<div class="panel-header"><div><h3>Expenses</h3><p>Track business expenses.</p></div><button class="primary-btn" onclick="openExpenseForm()">+ Add Expense</button></div>
+<div class="form-box" id="expenseForm">
+<h3>Add Expense</h3>
+<div class="form-grid">
+<input class="form-control" id="expenseTitle" placeholder="Expense title">
+<select class="form-control" id="expenseCategory"><option>Rent</option><option>Utilities</option><option>Transport</option><option>Marketing</option><option>Salary</option><option>Other</option></select>
+<input class="form-control" id="expenseAmount" type="number" min="0" placeholder="Amount">
+<input class="form-control" id="expenseDate" type="date">
+</div>
+<div class="form-actions"><button class="primary-btn" onclick="saveExpense()">Save Expense</button><button class="secondary-btn" onclick="closeExpenseForm()">Cancel</button></div>
+</div>
+<div class="table-container"><table><thead><tr><th>#</th><th>Expense</th><th>Category</th><th>Date</th><th>Amount</th><th>Action</th></tr></thead><tbody id="expenseTableBody"></tbody></table></div>
+</div>
+</section>
+
+<!-- REPORTS -->
+<section class="content-section" id="reportsSection">
+<div class="panel">
+<div class="panel-header"><div><h3>Business Reports</h3><p>Summary calculated from your saved data.</p></div></div>
+<div class="report-grid">
+<div class="report-card"><p>Total Sales</p><h3 id="reportSales">Rs. 0</h3></div>
+<div class="report-card"><p>Total Expenses</p><h3 id="reportExpenses">Rs. 0</h3></div>
+<div class="report-card"><p>Estimated Profit</p><h3 id="reportProfit">Rs. 0</h3></div>
+<div class="report-card"><p>Total Products</p><h3 id="reportProducts">0</h3></div>
+<div class="report-card"><p>Total Customers</p><h3 id="reportCustomers">0</h3></div>
+<div class="report-card"><p>Low Stock Items</p><h3 id="reportLowStock">0</h3></div>
+</div>
+</div>
+</section>
+
+</main>
+</div>
+
+<script>
+/* ================= AUTH ================= */
+const authPage=document.getElementById("authPage"),dashboard=document.getElementById("dashboard");
+function showSignup(){loginCard.style.display="none";signupCard.style.display="block"}
+function showLogin(){signupCard.style.display="none";loginCard.style.display="block"}
+
+signupForm.addEventListener("submit",e=>{
+e.preventDefault();
+const name=signupName.value.trim(),email=signupEmail.value.trim(),password=signupPassword.value,confirm=confirmPassword.value;
+if(password!==confirm){signupMessage.style.color="red";signupMessage.textContent="Passwords do not match.";return}
+if(password.length<6){signupMessage.style.color="red";signupMessage.textContent="Password must be at least 6 characters.";return}
+localStorage.setItem("biztrackUser",JSON.stringify({name,email,password}));
+signupMessage.style.color="green";signupMessage.textContent="Account created successfully.";
+setTimeout(showLogin,700);
+});
+
+loginForm.addEventListener("submit",e=>{
+e.preventDefault();
+const user=JSON.parse(localStorage.getItem("biztrackUser"));
+if(!user){loginMessage.style.color="red";loginMessage.textContent="No account found. Please Sign Up first.";return}
+if(loginEmail.value.trim()===user.email&&loginPassword.value===user.password){
+localStorage.setItem("biztrackLoggedIn","true");openDashboard(user.name);
+}else{loginMessage.style.color="red";loginMessage.textContent="Invalid email or password."}
+});
+function openDashboard(name){authPage.style.display="none";dashboard.style.display="block";userName.textContent=name;refreshAll()}
+function logout(){localStorage.removeItem("biztrackLoggedIn");dashboard.style.display="none";authPage.style.display="flex";showLogin()}
+function showSection(id,btn){
+document.querySelectorAll(".content-section").forEach(s=>s.classList.remove("active"));
+document.getElementById(id).classList.add("active");
+document.querySelectorAll(".menu-item").forEach(b=>b.classList.remove("active"));btn.classList.add("active");
+refreshAll();
+}
+
+/* ================= DATA ================= */
+let products=JSON.parse(localStorage.getItem("biztrackProducts"))||[
+{id:1,name:"Laptop",category:"Electronics",price:85000,stock:15},
+{id:2,name:"Keyboard",category:"Accessories",price:4500,stock:32},
+{id:3,name:"Mouse",category:"Accessories",price:2500,stock:8}
+];
+let customers=JSON.parse(localStorage.getItem("biztrackCustomers"))||[];
+let sales=JSON.parse(localStorage.getItem("biztrackSales"))||[];
+let expenses=JSON.parse(localStorage.getItem("biztrackExpenses"))||[];
+let editingProductId=null,editingCustomerId=null;
+
+/* ================= HELPERS ================= */
+const money=n=>"Rs. "+Number(n||0).toLocaleString();
+function persist(){localStorage.setItem("biztrackProducts",JSON.stringify(products));localStorage.setItem("biztrackCustomers",JSON.stringify(customers));localStorage.setItem("biztrackSales",JSON.stringify(sales));localStorage.setItem("biztrackExpenses",JSON.stringify(expenses))}
+function today(){return new Date().toISOString().split("T")[0]}
+
+/* ================= PRODUCTS ================= */
+function openProductForm(){productForm.style.display="block"}
+function closeProductForm(){productForm.style.display="none";clearProductForm();editingProductId=null;productFormTitle.textContent="Add Product"}
+function clearProductForm(){productName.value="";productCategory.value="";productPrice.value="";productStock.value=""}
+function saveProduct(){
+const name=productName.value.trim(),category=productCategory.value.trim(),price=Number(productPrice.value),stock=Number(productStock.value);
+if(!name||!category||price<0||productPrice.value===""||stock<0||productStock.value===""){alert("Please fill all product fields correctly.");return}
+if(editingProductId!==null){
+const p=products.find(x=>x.id===editingProductId);Object.assign(p,{name,category,price,stock});alert("Product updated.");
+}else{products.push({id:Date.now(),name,category,price,stock});alert("Product added.")}
+persist();renderProducts();closeProductForm();updateDashboard();
+}
+function renderProducts(){
+const q=(productSearch.value||"").toLowerCase();
+const list=products.filter(p=>(p.name+" "+p.category).toLowerCase().includes(q));
+productTableBody.innerHTML=list.map((p,i)=>{
+const status=p.stock===0?'<span class="status danger">Out of Stock</span>':p.stock<=10?'<span class="status low">Low Stock</span>':'<span class="status active">In Stock</span>';
+return `<tr><td>${i+1}</td><td>${p.name}</td><td>${p.category}</td><td>${money(p.price)}</td><td>${p.stock}</td><td>${status}</td><td><button class="action-edit" onclick="editProduct(${p.id})">Edit</button><button class="action-delete" onclick="deleteProduct(${p.id})">Delete</button></td></tr>`
+}).join("")||'<tr><td colspan="7">No products found.</td></tr>';
+}
+function editProduct(id){
+const p=products.find(x=>x.id===id);if(!p)return;
+productName.value=p.name;productCategory.value=p.category;productPrice.value=p.price;productStock.value=p.stock;
+editingProductId=id;productFormTitle.textContent="Edit Product";productForm.style.display="block";
+}
+function deleteProduct(id){if(!confirm("Delete this product?"))return;products=products.filter(p=>p.id!==id);persist();renderProducts();updateDashboard()}
+
+/* ================= CUSTOMERS ================= */
+function openCustomerForm(){customerForm.style.display="block"}
+function closeCustomerForm(){customerForm.style.display="none";clearCustomerForm();editingCustomerId=null;customerFormTitle.textContent="Add Customer"}
+function clearCustomerForm(){customerName.value="";customerEmail.value="";customerPhone.value="";customerAddress.value=""}
+function saveCustomer(){
+const name=customerName.value.trim(),email=customerEmail.value.trim(),phone=customerPhone.value.trim(),address=customerAddress.value.trim();
+if(!name||!email||!phone){alert("Name, email and phone are required.");return}
+if(editingCustomerId!==null){
+const c=customers.find(x=>x.id===editingCustomerId);Object.assign(c,{name,email,phone,address});alert("Customer updated.");
+}else{customers.push({id:Date.now(),name,email,phone,address});alert("Customer added.")}
+persist();renderCustomers();closeCustomerForm();updateDashboard();
+}
+function customerPurchaseTotal(id){return sales.filter(s=>s.customerId===id).reduce((sum,s)=>sum+s.total,0)}
+function renderCustomers(){
+const q=(customerSearch.value||"").toLowerCase();
+const list=customers.filter(c=>(c.name+" "+c.email+" "+c.phone).toLowerCase().includes(q));
+customerTableBody.innerHTML=list.map((c,i)=>`<tr><td>${i+1}</td><td>${c.name}</td><td>${c.email}</td><td>${c.phone}</td><td>${c.address||"-"}</td><td>${money(customerPurchaseTotal(c.id))}</td><td><button class="action-edit" onclick="editCustomer(${c.id})">Edit</button><button class="action-delete" onclick="deleteCustomer(${c.id})">Delete</button></td></tr>`).join("")||'<tr><td colspan="7">No customers found.</td></tr>';
+}
+function editCustomer(id){
+const c=customers.find(x=>x.id===id);if(!c)return;
+customerName.value=c.name;customerEmail.value=c.email;customerPhone.value=c.phone;customerAddress.value=c.address||"";
+editingCustomerId=id;customerFormTitle.textContent="Edit Customer";customerForm.style.display="block";
+}
+function deleteCustomer(id){
+if(sales.some(s=>s.customerId===id)){alert("This customer has sales records and cannot be deleted in this version.");return}
+if(!confirm("Delete this customer?"))return;
+customers=customers.filter(c=>c.id!==id);persist();renderCustomers();updateDashboard();
+}
+
+/* ================= SALES ================= */
+function openSaleForm(){
+if(!customers.length||!products.length){alert("Add at least one customer and one product first.");return}
+saleForm.style.display="block";populateSaleOptions();calculateSaleTotal()
+}
+function closeSaleForm(){saleForm.style.display="none"}
+function populateSaleOptions(){
+saleCustomer.innerHTML=customers.map(c=>`<option value="${c.id}">${c.name}</option>`).join("");
+saleProduct.innerHTML=products.filter(p=>p.stock>0).map(p=>`<option value="${p.id}">${p.name} - ${money(p.price)}</option>`).join("");
+updateSalePrice();
+}
+function updateSalePrice(){
+const p=products.find(x=>x.id===Number(saleProduct.value));salePrice.value=p?p.price:0;calculateSaleTotal()
+}
+saleProduct.addEventListener("change",updateSalePrice);saleQuantity.addEventListener("input",calculateSaleTotal);
+function calculateSaleTotal(){saleTotal.textContent=money(Number(salePrice.value||0)*Number(saleQuantity.value||0))}
+function saveSale(){
+const customerId=Number(saleCustomer.value),productId=Number(saleProduct.value),qty=Number(saleQuantity.value);
+const p=products.find(x=>x.id===productId);
+if(!p||qty<1){alert("Select a valid product and quantity.");return}
+if(qty>p.stock){alert("Not enough stock available.");return}
+const customer=customers.find(c=>c.id===customerId);
+const total=p.price*qty;
+sales.push({id:Date.now(),invoice:"INV-"+Date.now().toString().slice(-6),customerId,customerName:customer.name,productId,productName:p.name,qty,total,date:today()});
+p.stock-=qty;
+persist();renderSales();renderProducts();closeSaleForm();updateDashboard();alert("Sale saved successfully.");
+}
+function renderSales(){
+salesTableBody.innerHTML=sales.slice().reverse().map((s,i)=>`<tr><td>#${s.invoice}</td><td>${s.customerName}</td><td>${s.productName}</td><td>${s.qty}</td><td>${money(s.total)}</td><td>${s.date}</td><td><button class="action-delete" onclick="deleteSale(${s.id})">Delete</button></td></tr>`).join("")||'<tr><td colspan="7">No sales yet.</td></tr>';
+}
+function deleteSale(id){
+if(!confirm("Delete this sale? Stock will be restored."))return;
+const s=sales.find(x=>x.id===id);if(!s)return;
+const p=products.find(x=>x.id===s.productId);if(p)p.stock+=s.qty;
+sales=sales.filter(x=>x.id!==id);persist();renderSales();renderProducts();updateDashboard();
+}
+
+/* ================= EXPENSES ================= */
+function openExpenseForm(){expenseForm.style.display="block";expenseDate.value=today()}
+function closeExpenseForm(){expenseForm.style.display="none";expenseTitle.value="";expenseAmount.value="";expenseDate.value=""}
+function saveExpense(){
+const title=expenseTitle.value.trim(),category=expenseCategory.value,amount=Number(expenseAmount.value),date=expenseDate.value||today();
+if(!title||amount<=0){alert("Enter expense title and a valid amount.");return}
+expenses.push({id:Date.now(),title,category,amount,date});persist();renderExpenses();closeExpenseForm();updateDashboard();alert("Expense saved.");
+}
+function renderExpenses(){
+expenseTableBody.innerHTML=expenses.slice().reverse().map((e,i)=>`<tr><td>${i+1}</td><td>${e.title}</td><td>${e.category}</td><td>${e.date}</td><td>${money(e.amount)}</td><td><button class="action-delete" onclick="deleteExpense(${e.id})">Delete</button></td></tr>`).join("")||'<tr><td colspan="6">No expenses yet.</td></tr>';
+}
+function deleteExpense(id){if(!confirm("Delete this expense?"))return;expenses=expenses.filter(e=>e.id!==id);persist();renderExpenses();updateDashboard()}
+
+/* ================= DASHBOARD / REPORTS ================= */
+function totalSales(){return sales.reduce((sum,s)=>sum+s.total,0)}
+function totalExpenses(){return expenses.reduce((sum,e)=>sum+e.amount,0)}
+function updateDashboard(){
+dashSales.textContent=money(totalSales());dashProducts.textContent=products.length;dashCustomers.textContent=customers.length;dashExpenses.textContent=money(totalExpenses());
+reportSales.textContent=money(totalSales());reportExpenses.textContent=money(totalExpenses());reportProfit.textContent=money(totalSales()-totalExpenses());reportProducts.textContent=products.length;reportCustomers.textContent=customers.length;reportLowStock.textContent=products.filter(p=>p.stock<=10).length;
+recentSalesBody.innerHTML=sales.slice().reverse().slice(0,5).map(s=>`<tr><td>#${s.invoice}</td><td>${s.customerName}</td><td>${money(s.total)}</td><td>${s.date}</td></tr>`).join("")||'<tr><td colspan="4">No sales yet.</td></tr>';
+}
+function refreshAll(){renderProducts();renderCustomers();renderSales();renderExpenses();updateDashboard();}
+
+/* ================= START ================= */
+window.addEventListener("load",()=>{
+const logged=localStorage.getItem("biztrackLoggedIn"),user=JSON.parse(localStorage.getItem("biztrackUser"));
+if(logged==="true"&&user)openDashboard(user.name);
+});
+</script>
+</body>
+</html>
