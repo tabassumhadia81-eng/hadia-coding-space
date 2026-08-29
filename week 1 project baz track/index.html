@@ -395,5 +395,160 @@ const logged=localStorage.getItem("biztrackLoggedIn"),user=JSON.parse(localStora
 if(logged==="true"&&user)openDashboard(user.name);
 });
 </script>
+
+<script>
+/* ================= BIZTRACK BACKEND CONNECTION ================= */
+let apiToken = localStorage.getItem('biztrackToken') || null;
+let apiUser = JSON.parse(localStorage.getItem('biztrackUser') || 'null');
+let editingProductId = null;
+let editingCustomerId = null;
+let products = [];
+let customers = [];
+let sales = [];
+let expenses = [];
+
+async function api(url, options={}) {
+  const headers = {'Content-Type':'application/json', ...(options.headers||{})};
+  if (apiToken) headers.Authorization = 'Bearer ' + apiToken;
+  const r = await fetch(url, {...options, headers});
+  const d = await r.json().catch(()=>({}));
+  if (!r.ok) throw new Error(d.message || 'Request failed');
+  return d;
+}
+
+/* Capture auth submits before the old localStorage-only handlers. */
+signupForm.addEventListener('submit', async e => {
+  e.preventDefault(); e.stopImmediatePropagation();
+  const name=signupName.value.trim(), email=signupEmail.value.trim(), password=signupPassword.value, confirm=confirmPassword.value;
+  if(password!==confirm){signupMessage.style.color='red';signupMessage.textContent='Passwords do not match.';return;}
+  if(password.length<6){signupMessage.style.color='red';signupMessage.textContent='Password must be at least 6 characters.';return;}
+  try{
+    const d=await api('/api/auth/signup',{method:'POST',body:JSON.stringify({name,email,password})});
+    apiToken=d.token; apiUser=d.user;
+    localStorage.setItem('biztrackToken',apiToken);
+    localStorage.setItem('biztrackUser',JSON.stringify(apiUser));
+    signupMessage.style.color='green';signupMessage.textContent='Account created successfully.';
+    setTimeout(()=>openDashboard(apiUser.name),500);
+  }catch(err){signupMessage.style.color='red';signupMessage.textContent=err.message;}
+},{capture:true});
+
+loginForm.addEventListener('submit', async e => {
+  e.preventDefault(); e.stopImmediatePropagation();
+  try{
+    const d=await api('/api/auth/login',{method:'POST',body:JSON.stringify({email:loginEmail.value.trim(),password:loginPassword.value})});
+    apiToken=d.token; apiUser=d.user;
+    localStorage.setItem('biztrackToken',apiToken);
+    localStorage.setItem('biztrackUser',JSON.stringify(apiUser));
+    loginMessage.textContent=''; openDashboard(apiUser.name);
+  }catch(err){loginMessage.style.color='red';loginMessage.textContent=err.message;}
+},{capture:true});
+
+window.logout = function(){
+  apiToken=null;apiUser=null;
+  localStorage.removeItem('biztrackToken');localStorage.removeItem('biztrackUser');
+  dashboard.style.display='none';authPage.style.display='flex';showLogin();
+};
+window.openDashboard = function(name){
+  authPage.style.display='none';dashboard.style.display='block';userName.textContent=name;refreshAll();
+};
+
+/* ---------- Products ---------- */
+window.loadProducts = async function(){products=await api('/api/products');renderProducts();};
+window.saveProduct = async function(){
+  const name=productName.value.trim(),category=productCategory.value.trim(),price=Number(productPrice.value),stock=Number(productStock.value);
+  if(!name||!category||productPrice.value===''||price<0||productStock.value===''||stock<0){alert('Please fill all product fields correctly.');return;}
+  try{
+    if(editingProductId!==null) await api('/api/products/'+editingProductId,{method:'PUT',body:JSON.stringify({name,category,price,stock})});
+    else await api('/api/products',{method:'POST',body:JSON.stringify({name,category,price,stock})});
+    closeProductForm(); await refreshAll();
+  }catch(err){alert(err.message);}
+};
+window.deleteProduct = async function(id){
+  if(!confirm('Delete this product?'))return;
+  try{await api('/api/products/'+id,{method:'DELETE'});await refreshAll();}catch(err){alert(err.message);}
+};
+window.editProduct = function(id){
+  const p=products.find(x=>x.id===id);if(!p)return;
+  productName.value=p.name;productCategory.value=p.category;productPrice.value=p.price;productStock.value=p.stock;
+  editingProductId=id;productFormTitle.textContent='Edit Product';productForm.style.display='block';
+};
+
+/* ---------- Customers ---------- */
+window.loadCustomers = async function(){customers=await api('/api/customers');renderCustomers();};
+window.saveCustomer = async function(){
+  const name=customerName.value.trim(),email=customerEmail.value.trim(),phone=customerPhone.value.trim(),address=customerAddress.value.trim();
+  if(!name||!email||!phone){alert('Name, email and phone are required.');return;}
+  try{
+    const body=JSON.stringify({name,email,phone,address});
+    if(editingCustomerId!==null) await api('/api/customers/'+editingCustomerId,{method:'PUT',body});
+    else await api('/api/customers',{method:'POST',body});
+    closeCustomerForm();await refreshAll();
+  }catch(err){alert(err.message);}
+};
+window.editCustomer = function(id){
+  const c=customers.find(x=>x.id===id);if(!c)return;
+  customerName.value=c.name;customerEmail.value=c.email;customerPhone.value=c.phone;customerAddress.value=c.address||'';
+  editingCustomerId=id;customerFormTitle.textContent='Edit Customer';customerForm.style.display='block';
+};
+window.deleteCustomer = async function(id){
+  if(!confirm('Delete this customer?'))return;
+  try{await api('/api/customers/'+id,{method:'DELETE'});await refreshAll();}catch(err){alert(err.message);}
+};
+window.customerPurchaseTotal = function(id){return sales.filter(s=>s.customer_id===id).reduce((a,s)=>a+s.total,0);};
+
+/* ---------- Sales ---------- */
+window.loadSales = async function(){sales=await api('/api/sales');renderSales();};
+window.saveSale = async function(){
+  const customerId=Number(saleCustomer.value),productId=Number(saleProduct.value),qty=Number(saleQuantity.value);
+  if(qty<1){alert('Enter a valid quantity.');return;}
+  try{const d=await api('/api/sales',{method:'POST',body:JSON.stringify({customerId,productId,qty})});closeSaleForm();await refreshAll();alert('Sale saved successfully. Invoice: '+d.invoice);}catch(err){alert(err.message);}
+};
+window.deleteSale = async function(id){
+  if(!confirm('Delete this sale? Stock will be restored.'))return;
+  try{await api('/api/sales/'+id,{method:'DELETE'});await refreshAll();}catch(err){alert(err.message);}
+};
+window.openSaleForm = function(){
+  if(!customers.length||!products.length){alert('Add at least one customer and one product first.');return;}
+  saleForm.style.display='block';populateSaleOptions();calculateSaleTotal();
+};
+window.populateSaleOptions = function(){
+  saleCustomer.innerHTML=customers.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  saleProduct.innerHTML=products.filter(p=>p.stock>0).map(p=>`<option value="${p.id}">${p.name} - ${money(p.price)}</option>`).join('');
+  updateSalePrice();
+};
+window.updateSalePrice = function(){const p=products.find(x=>x.id===Number(saleProduct.value));salePrice.value=p?p.price:0;calculateSaleTotal();};
+
+/* ---------- Expenses ---------- */
+window.loadExpenses = async function(){expenses=await api('/api/expenses');renderExpenses();};
+window.saveExpense = async function(){
+  const title=expenseTitle.value.trim(),category=expenseCategory.value,amount=Number(expenseAmount.value),date=expenseDate.value||today();
+  if(!title||amount<=0){alert('Enter expense title and a valid amount.');return;}
+  try{await api('/api/expenses',{method:'POST',body:JSON.stringify({title,category,amount,date})});closeExpenseForm();await refreshAll();alert('Expense saved.');}catch(err){alert(err.message);}
+};
+window.deleteExpense = async function(id){
+  if(!confirm('Delete this expense?'))return;
+  try{await api('/api/expenses/'+id,{method:'DELETE'});await refreshAll();}catch(err){alert(err.message);}
+};
+
+/* ---------- Dashboard ---------- */
+window.updateDashboard = async function(){
+  try{
+    const r=await api('/api/reports');
+    dashSales.textContent=money(r.sales);dashProducts.textContent=r.products;dashCustomers.textContent=r.customers;dashExpenses.textContent=money(r.expenses);
+    reportSales.textContent=money(r.sales);reportExpenses.textContent=money(r.expenses);reportProfit.textContent=money(r.profit);reportProducts.textContent=r.products;reportCustomers.textContent=r.customers;reportLowStock.textContent=r.lowStock;
+    recentSalesBody.innerHTML=sales.slice(0,5).map(s=>`<tr><td>#${s.invoice}</td><td>${s.customerName}</td><td>${money(s.total)}</td><td>${s.date}</td></tr>`).join('')||'<tr><td colspan="4">No sales yet.</td></tr>';
+  }catch(err){console.error(err);}
+};
+window.refreshAll = async function(){
+  if(!apiToken)return;
+  try{await Promise.all([loadProducts(),loadCustomers(),loadSales(),loadExpenses()]);await updateDashboard();}
+  catch(err){if(/Login required|Invalid or expired token/i.test(err.message)) logout();else console.error(err);}
+};
+
+/* If an old localStorage session exists, prefer the server token. */
+window.addEventListener('load',async()=>{
+  if(apiToken){try{const d=await api('/api/me');apiUser=d.user;localStorage.setItem('biztrackUser',JSON.stringify(apiUser));openDashboard(apiUser.name);}catch(e){logout();}}
+});
+</script>
 </body>
 </html>
